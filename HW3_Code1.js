@@ -52,14 +52,14 @@ function main() {
     console.log('Failed to intialize the texture.');
     return;
   }
-  
+
   // Set the clear color and enable the depth test
   gl.clearColor(0.5, 0.5, 0.5, 1);
   gl.enable(gl.DEPTH_TEST);
 
   // Get the storage locations of uniform variables and so on
   var u_MvpMatrix     = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
-  
+
 //  var u_CameraPos     = gl.getUniformLocation(gl.program, 'u_CameraPos');
   if (!u_MvpMatrix ) {
     console.log('Failed to get the storage location');
@@ -68,7 +68,7 @@ function main() {
   // *******************************************************************************************
   var cameraPos = [1,3,8];          // camera position
   //********************************************************************************************
-  
+
   //********************************************************************************************
 // creo una GUI con dat.gui
   var gui = new dat.GUI();
@@ -76,90 +76,91 @@ function main() {
   var geometria = {cube:true,cone:false,cylinder:false,sphere:false,torus:false};
   //
   gui.add(geometria,'cube').onFinishChange(function(value) {
-    // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
 	   if(value == true){
-		geometria.cube = value;
-		geometria.cone = false;
-		geometria.cylinder = false;
-		geometria.sphere = false;
-		geometria.torus = false;
-		console.log(geometria.cube + " " +geometria.cone);
-		 // Set the vertex coordinates, the color and the normal
-		n = initVertexBuffersCube(gl);
-		if (n < 0) {
-			console.log('Failed to set the vertex information');
-			return;
-		}
+    		geometria.cube = value;
+    		geometria.cone = false;
+    		geometria.cylinder = false;
+    		geometria.sphere = false;
+    		geometria.torus = false;
+    		console.log(geometria.cube + " " +geometria.cone);
+    		// Set the vertex coordinates, the color and the normal
+    		n = initVertexBuffersCube(gl);
+    		if (n < 0) {
+    			console.log('Failed to set the vertex information');
+    			return;
+		    }
 	   }
 	   // Iterate over all controllers
-       for (var i in gui.__controllers) {
-          gui.__controllers[i].updateDisplay();
-       }
-   });
+     for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+     }
+  });
   gui.add(geometria,'cone').onFinishChange(function(value) {
-    // Fires when a controller loses focus.
-       // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
 	   if(value == true){
-		geometria.cube = false;
-		geometria.cone = value;
-		geometria.cylinder = false;
-		geometria.sphere = false;
-		geometria.torus = false;
-	   }
+    		geometria.cube = false;
+    		geometria.cone = value;
+    		geometria.cylinder = false;
+    		geometria.sphere = false;
+    		geometria.torus = false;
+     }
 	   // Iterate over all controllers
-       for (var i in gui.__controllers) {
-          gui.__controllers[i].updateDisplay();
-       }
-   });
+     for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+     }
+  });
   gui.add(geometria,'cylinder').onFinishChange(function(value) {
-    // Fires when a controller loses focus.
-       // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
 	   if(value == true){
-		geometria.cube = false;
-		geometria.cone = false;
-		geometria.cylinder = value;
-		geometria.sphere = false;
-		geometria.torus = false;
+    		geometria.cube = false;
+    		geometria.cone = false;
+    		geometria.cylinder = value;
+    		geometria.sphere = false;
+    		geometria.torus = false;
 	   }
 	   // Iterate over all controllers
-       for (var i in gui.__controllers) {
-          gui.__controllers[i].updateDisplay();
-       }
-   });
+     for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+     }
+  });
   gui.add(geometria,'sphere').onFinishChange(function(value) {
-    // Fires when a controller loses focus.
-       // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
 	   if(value == true){
-		geometria.cube = false;
-		geometria.cone = false;
-		geometria.cylinder = false;
-		geometria.sphere = value;
-		geometria.torus = false;
-		n = initVertexBuffersSphere(gl);
-		if (n < 0) {
-			console.log('Failed to set the vertex information');
-			return;
-		}	   }
+    		geometria.cube = false;
+    		geometria.cone = false;
+    		geometria.cylinder = false;
+    		geometria.sphere = value;
+    		geometria.torus = false;
+    		n = initVertexBuffersSphere(gl);
+    		if (n < 0) {
+    			console.log('Failed to set the vertex information');
+    			return;
+    		}
+     }
 	   // Iterate over all controllers
-       for (var i in gui.__controllers) {
-          gui.__controllers[i].updateDisplay();
-       }
-   });
+     for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+     }
+  });
   gui.add(geometria,'torus').onFinishChange(function(value) {
-    // Fires when a controller loses focus.
-       // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
+     // Fires when a controller loses focus.
 	   if(value == true){
-		geometria.cube = false;
-		geometria.cone = false;
-		geometria.cylinder = false;
-		geometria.sphere = false;
-		geometria.torus = value;
+    		geometria.cube = false;
+    		geometria.cone = false;
+    		geometria.cylinder = false;
+    		geometria.sphere = false;
+    		geometria.torus = value;
 	   }
 	   // Iterate over all controllers
-       for (var i in gui.__controllers) {
-          gui.__controllers[i].updateDisplay();
-       }
-   });  
+     for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+     }
+  });
   //*********************************************************************************************
 
   var currentAngle = 0.0;           // Current rotation angle
@@ -222,7 +223,7 @@ function initVertexBuffersCube(gl) {
     0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,  // v7-v4-v3-v2 down
     0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0   // v4-v7-v6-v5 back
   ]);
-  
+
   // Indices of the vertices
   var indices = new Uint16Array([
      0, 1, 2,   0, 2, 3,    // front
@@ -346,9 +347,9 @@ function loadTexture(gl, texture, u_Sampler, image) {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
   // Set the texture image
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-  
+
   // Set the texture unit 0 to the sampler
   gl.uniform1i(u_Sampler, 0);
-  
+
   gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 }
