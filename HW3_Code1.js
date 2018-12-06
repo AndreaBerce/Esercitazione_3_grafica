@@ -98,13 +98,17 @@ function main() {
   });
   gui.add(geometria,'cone').onFinishChange(function(value) {
      // Fires when a controller loses focus.
-     // Fires when a controller loses focus.
 	   if(value == true){
     		geometria.cube = false;
     		geometria.cone = value;
     		geometria.cylinder = false;
     		geometria.sphere = false;
     		geometria.torus = false;
+        n = initVertexBuffersSphere(gl);
+    		if (n < 0) {
+    			console.log('Failed to set the vertex information');
+    			return;
+    		}
      }
 	   // Iterate over all controllers
      for (var i in gui.__controllers) {
@@ -120,6 +124,11 @@ function main() {
     		geometria.cylinder = value;
     		geometria.sphere = false;
     		geometria.torus = false;
+        n = initVertexBuffersSphere(gl);
+    		if (n < 0) {
+    			console.log('Failed to set the vertex information');
+    			return;
+    		}
 	   }
 	   // Iterate over all controllers
      for (var i in gui.__controllers) {
@@ -155,6 +164,11 @@ function main() {
     		geometria.cylinder = false;
     		geometria.sphere = false;
     		geometria.torus = value;
+        n = initVertexBuffersSphere(gl);
+    		if (n < 0) {
+    			console.log('Failed to set the vertex information');
+    			return;
+    		}
 	   }
 	   // Iterate over all controllers
      for (var i in gui.__controllers) {
