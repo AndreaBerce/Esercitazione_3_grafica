@@ -117,7 +117,6 @@ function main() {
   });
   gui.add(geometria,'cylinder').onFinishChange(function(value) {
      // Fires when a controller loses focus.
-     // Fires when a controller loses focus.
 	   if(value == true){
     		geometria.cube = false;
     		geometria.cone = false;
@@ -137,7 +136,6 @@ function main() {
   });
   gui.add(geometria,'sphere').onFinishChange(function(value) {
      // Fires when a controller loses focus.
-     // Fires when a controller loses focus.
 	   if(value == true){
     		geometria.cube = false;
     		geometria.cone = false;
@@ -156,7 +154,6 @@ function main() {
      }
   });
   gui.add(geometria,'torus').onFinishChange(function(value) {
-     // Fires when a controller loses focus.
      // Fires when a controller loses focus.
 	   if(value == true){
     		geometria.cube = false;
@@ -227,7 +224,21 @@ function initVertexBuffersCube(gl) {
     -1.0,-1.0,-1.0,   1.0,-1.0,-1.0,   1.0,-1.0, 1.0,  -1.0,-1.0, 1.0, // v7-v4-v3-v2 down
      1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0  // v4-v7-v6-v5 back
   ]);
+  console.log(positions);
 
+  var uvs = new Float32Array( (positions.length / 3) * 2 );
+  for( var i = 0; i < uvs.length / 8; i++ ){
+    uvs[i*8] = 1.0;
+    uvs[i*8+1] = 1.0;
+    uvs[i*8+2] = 0.0;
+    uvs[i*8+3] = 1.0;
+    uvs[i*8+4] = 0.0;
+    uvs[i*8+5] = 0.0;
+    uvs[i*8+6] = 1.0;
+    uvs[i*8+7] = 0.0;
+    console.log(uvs);
+  }
+/*
   // TexCoord
   var uvs = new Float32Array([
     1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,  // v0-v1-v2-v3 front
@@ -236,7 +247,8 @@ function initVertexBuffersCube(gl) {
     1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,  // v1-v6-v7-v2 left
     0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,  // v7-v4-v3-v2 down
     0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0   // v4-v7-v6-v5 back
-  ]);
+  ]);*/
+  console.log(uvs);
 
   // Indices of the vertices
   var indices = new Uint16Array([
