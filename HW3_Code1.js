@@ -73,7 +73,7 @@ function main() {
         return;
     }
     // *******************************************************************************************
-    var cameraPos = [1,3,8];          // camera position
+    var cameraPos = [0,3,8];          // camera position
     //********************************************************************************************
 
     //********************************************************************************************
@@ -121,10 +121,9 @@ function main() {
         		geometria.torus = false;
 
             //n = initVertexBuffersCone(gl);
-            var raggio = 1.0000001*Math.sqrt(2);
-            var centri = new Float32Array([0,1, 0,1, 0,-1, 0,-1]);
-            var dimensioni = new Float32Array([0, raggio, raggio, 0]);
-            var precisioneC = 4;
+            centri = new Float32Array([0,1.2, 0,-0.9, 0,-0.9]);
+            dimensioni = new Float32Array([0, 0.7, 0]);
+            precisioneC = 15;//128;
             n = circleDrag(gl, centri, dimensioni, precisioneC);
 
         		if (n < 0) {
@@ -145,7 +144,14 @@ function main() {
         		geometria.cylinder = value;
         		geometria.sphere = false;
         		geometria.torus = false;
-            n = initVertexBuffersCylinder(gl);
+
+            centri = new Float32Array([0,0.8, 0,0.8, 0,-0.8, 0,-0.8]);
+            dimensioni = new Float32Array([0, 0.8, 0.8, 0]);
+            precisioneC = 128;
+            n = circleDrag(gl, centri, dimensioni, precisioneC);
+
+            //n = initVertexBuffersCylinder(gl);
+
         		if (n < 0) {
         			console.log('Failed to set the vertex information');
         			return;
@@ -196,7 +202,7 @@ function main() {
     });
     //*********************************************************************************************
 
-    var currentAngle = 0.0;           // Current rotation angle
+    var currentAngle = 90.0;           // Current rotation angle
     var vpMatrix = new Matrix4();   // View projection matrix
 
     // Calculate the view projection matrix
@@ -211,7 +217,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -346,7 +352,10 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
       isClosed = true;
   }
 
-  var angolo = Math.PI / 4;
+  var angolo = 0;
+  if( precisioneC == 4 ){
+      angolo = Math.PI / 4;
+  }
   var alphaPrecedente = 0;
   var count = 0;
   var ind = 0;
@@ -365,12 +374,21 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
       if( distanza[i] > 0 ){  // Se deve essere un poligono
           if( distanza[i-1] == 0 ){
               for( var j = 0; j < precisioneC; j++ ){
-                  vertices[count+3] = centri[(i-1) * 2];
-                  vertices[count+4] = centri[(i-1) * 2 + 1];
-                  vertices[count+5] = 0;
+                  vertices[count] = centri[(i-1) * 2];
+                  vertices[count+1] = centri[(i-1) * 2 + 1];
+                  vertices[count+2] = 0;
 
-                  uvs[countIndTexture + 2] = 0.5;
-                  uvs[countIndTexture + 3] = 0.5;
+                  if( centri[(i-1) * 2 + 1] == centri[i * 2 + 1] ){
+                      uvs[countIndTexture] = 0.5;
+                      uvs[countIndTexture + 1] = 0.5;
+                  }else{
+                      if( Math.sin(angolo) >= 0 ){
+                          uvs[countIndTexture] = 0.75 + Math.cos(angolo + Math.PI / precisioneC) * 0.25;
+                      }else{
+                          uvs[countIndTexture] = 0.25 + -Math.cos(angolo + Math.PI / precisioneC) * 0.25;
+                      }
+                      uvs[countIndTexture + 1] = 1;
+                  }
 
                   // Calcolo delle coordinate dei punti sui cerchi minori
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
@@ -383,16 +401,20 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   }
                   z = distanza[i] * Math.sin(angolo);
 
-                  vertices[count] = x;
-                  vertices[count+1] = y;
-                  vertices[count+2] = z;
+                  vertices[count+3] = x;
+                  vertices[count+4] = y;
+                  vertices[count+5] = z;
 
                   if( precisioneC == 4 ){
-                      uvs[countIndTexture] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
-                      uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                      uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
+                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
                   }else{
-                      uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
-                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
+                      if( Math.sin(angolo) >= 0 ){
+                          uvs[countIndTexture + 2] = 0.75 + Math.cos(angolo) * 0.25;
+                      }else{
+                          uvs[countIndTexture + 2] = 0.25 + -Math.cos(angolo) * 0.25;
+                      }
+                      uvs[countIndTexture + 3] = 0;  //0.5 + -Math.sin(angolo) * 0.5;
                   }
 
 
@@ -413,11 +435,15 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+8] = z;
 
                   if( precisioneC == 4 ){
-                      uvs[countIndTexture + 4] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
+                      uvs[countIndTexture + 4] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
                       uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
                   }else{
-                      uvs[countIndTexture + 4] = 0.5 + Math.cos(angolo) * 0.5;
-                      uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * 0.5;
+                      if( Math.sin(angolo) >= 0 ){
+                          uvs[countIndTexture + 4] = 0.75 + Math.cos(angolo) * 0.25;
+                      }else{
+                          uvs[countIndTexture + 4] = 0.25 + -Math.cos(angolo) * 0.25;
+                      }
+                      uvs[countIndTexture + 5] = 0;  //0.5 + -Math.sin(angolo) * 0.5;
                   }
                   countIndTexture = countIndTexture + 6;
 
@@ -428,8 +454,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       indices[ind+2] = ind2;
                   }else{
                       indices[ind] = ind2;        // 0
-                      indices[ind+1] = ind2 + 1;  // 1
-                      indices[ind+2] = ind2 + 2;  // 2
+                      indices[ind+1] = ind2 + 1;  // 2
+                      indices[ind+2] = ind2 + 2;  // 1
                   }
 
                   ind = ind + 3;
@@ -548,6 +574,10 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+6] = centri[i*2];  // 9
                   vertices[count+7] = centri[i*2 + 1];
                   vertices[count+8] = 0;
+
+                  uvs[countIndTexture + 4] = 0.5;
+                  uvs[countIndTexture + 5] = 0.5;
+
                   // 5
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
@@ -562,6 +592,15 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+3] = x;
                   vertices[count+4] = y;
                   vertices[count+5] = z;
+
+                  if( precisioneC == 4 ){
+                      uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
+                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                  }else{
+                      uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
+                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
+                  }
+
                   // 6
                   angolo = angolo + ( 2 * Math.PI / precisioneC );
 
@@ -579,19 +618,19 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+1] = y;
                   vertices[count+2] = z;
 
+                  if( precisioneC == 4 ){
+                      uvs[countIndTexture] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
+                      uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                  }else{
+                      uvs[countIndTexture] = 0.5 + Math.cos(angolo) * 0.5;
+                      uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * 0.5;
+                  }
+
+                  countIndTexture = countIndTexture + 6;
+
                   indices[ind] = ind2;        // 6
                   indices[ind+1] = ind2 + 1;  // 5
                   indices[ind+2] = ind2 + 2;  // 9
-
-                  if( precisioneC == 4 ){
-                      uvs[countIndTexture] = 1;
-                      uvs[countIndTexture + 1] = 1;
-                      uvs[countIndTexture + 2] = 0;
-                      uvs[countIndTexture + 3] = 1;
-                      uvs[countIndTexture + 4] = 0.5;
-                      uvs[countIndTexture + 5] = 0.5;
-                  }
-                  countIndTexture = countIndTexture + 6;
 
                   ind = ind + 3;
                   ind2 = ind2 + 3;
@@ -603,6 +642,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
   }
   console.log("vertices: ", vertices);
   console.log("uvs: ", uvs);
+  console.log("indices: ", indices);
 
 
   // Write the vertex property to buffers (coordinates and normals)
