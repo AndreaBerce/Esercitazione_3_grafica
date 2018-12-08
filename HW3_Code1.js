@@ -123,7 +123,7 @@ function main() {
             //n = initVertexBuffersCone(gl);
             centri = new Float32Array([0,1.2, 0,-0.9, 0,-0.9]);
             dimensioni = new Float32Array([0, 0.7, 0]);
-            precisioneC = 15;//128;
+            precisioneC = 200;//128;
             n = circleDrag(gl, centri, dimensioni, precisioneC);
 
         		if (n < 0) {
@@ -217,7 +217,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 0, -1, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -382,7 +382,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       uvs[countIndTexture] = 0.5;
                       uvs[countIndTexture + 1] = 0.5;
                   }else{
-                      if( Math.sin(angolo) >= 0 ){
+                      if( Math.sin(angolo) > 0 ){
                           uvs[countIndTexture] = 0.75 + Math.cos(angolo + Math.PI / precisioneC) * 0.25;
                       }else{
                           uvs[countIndTexture] = 0.25 + -Math.cos(angolo + Math.PI / precisioneC) * 0.25;
@@ -409,7 +409,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
                       uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
                   }else{
-                      if( Math.sin(angolo) >= 0 ){
+                      if( Math.sin(angolo) > 0 ){
                           uvs[countIndTexture + 2] = 0.75 + Math.cos(angolo) * 0.25;
                       }else{
                           uvs[countIndTexture + 2] = 0.25 + -Math.cos(angolo) * 0.25;
