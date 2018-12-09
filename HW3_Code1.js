@@ -373,20 +373,17 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
       if( distanza[i] > 0 ){  // Se deve essere un poligono
           if( distanza[i-1] == 0 ){
+              var supporto = 1;
               for( var j = 0; j < precisioneC; j++ ){
                   vertices[count] = centri[(i-1) * 2];
                   vertices[count+1] = centri[(i-1) * 2 + 1];
                   vertices[count+2] = 0;
 
-                  if( centri[(i-1) * 2 + 1] == centri[i * 2 + 1] ){
+                  if( centri[(i-1) * 2 + 1] == centri[i * 2 + 1] && i > 0 ){  // nel caso del cubo e cilindro
                       uvs[countIndTexture] = 0.5;
                       uvs[countIndTexture + 1] = 0.5;
-                  }else{
-                      if( Math.sin(angolo) > 0 ){
-                          uvs[countIndTexture] = 0.75 + Math.cos(angolo + Math.PI / precisioneC) * 0.25;
-                      }else{
-                          uvs[countIndTexture] = 0.25 + -Math.cos(angolo + Math.PI / precisioneC) * 0.25;
-                      }
+                  }else{  // nel caso del cono
+                      uvs[countIndTexture] = supporto - ( 1 / precisioneC ) / 2;
                       uvs[countIndTexture + 1] = 1;
                   }
 
@@ -405,20 +402,22 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+4] = y;
                   vertices[count+5] = z;
 
-                  if( precisioneC == 4 ){
-                      uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
-                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
-                  }else{
-                      if( Math.sin(angolo) > 0 ){
-                          uvs[countIndTexture + 2] = 0.75 + Math.cos(angolo) * 0.25;
-                      }else{
-                          uvs[countIndTexture + 2] = 0.25 + -Math.cos(angolo) * 0.25;
+                  if( centri[(i-1) * 2 + 1] == centri[i * 2 + 1] && i > 0 ){
+                      if( precisioneC == 4 ){ // nel caso del cubo
+                          uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
+                          uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                      }else{  // nel caso del cilindro
+                          uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
                       }
-                      uvs[countIndTexture + 3] = 0;  //0.5 + -Math.sin(angolo) * 0.5;
+                  }else{  // nel caso del cono
+                      uvs[countIndTexture + 2] = supporto;
+                      uvs[countIndTexture + 3] = 0;
                   }
 
 
                   angolo = angolo + ( 2 * Math.PI / precisioneC );
+                  supporto = supporto - ( 1 / precisioneC );
 
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
@@ -434,16 +433,17 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+7] = y;
                   vertices[count+8] = z;
 
-                  if( precisioneC == 4 ){
-                      uvs[countIndTexture + 4] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
-                      uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
-                  }else{
-                      if( Math.sin(angolo) >= 0 ){
-                          uvs[countIndTexture + 4] = 0.75 + Math.cos(angolo) * 0.25;
-                      }else{
-                          uvs[countIndTexture + 4] = 0.25 + -Math.cos(angolo) * 0.25;
+                  if( centri[(i-1) * 2 + 1] == centri[i * 2 + 1] && i > 0 ){
+                      if( precisioneC == 4 ){ // nel caso del cubo
+                          uvs[countIndTexture + 4] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
+                          uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                      }else{  // nel caso del cilindro
+                          uvs[countIndTexture + 4] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * 0.5;
                       }
-                      uvs[countIndTexture + 5] = 0;  //0.5 + -Math.sin(angolo) * 0.5;
+                  }else{  // nel caos del cono
+                      uvs[countIndTexture + 4] = supporto;
+                      uvs[countIndTexture + 5] = 0;
                   }
                   countIndTexture = countIndTexture + 6;
 
