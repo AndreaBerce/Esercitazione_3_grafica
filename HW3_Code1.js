@@ -189,7 +189,35 @@ function main() {
         		geometria.cylinder = false;
         		geometria.sphere = false;
         		geometria.torus = value;
-            n = initVertexBuffersTorus(gl);
+
+            //n = initVertexBuffersTorus(gl);
+
+            centri = [];
+            dimensioni = [];
+            precisioneC = 125;
+
+            // Genero i punti del cerchio principale
+            raggione = 1;
+            var raggino = 0.7;
+
+            for(var i = 0; i <= 2*Math.PI; i+= 2*Math.PI/precisioneC){
+               centri.push(-raggione * Math.cos(i));                                // x
+               centri.push(-raggione * Math.sin(i));                                // y
+               dimensioni.push(raggino);                                           // Raggio dei cerchi
+            }
+
+            //Il primo elemento si ripete
+            centri.unshift(centri[1]);
+            centri.unshift(centri[1]); //Pusho di nuovo lo stesso perché ora sono shiftati dopo il primo unshift
+            dimensioni.unshift(0);
+            //Ripeto anche l'ultimo, che sarà uguale al primo essendo una figura chiusa.
+            centri.push(centri[0]);
+            centri.push(centri[1]);
+            dimensioni.push(raggino);
+
+            n = circleDrag(gl, new Float32Array(centri), new Float32Array(dimensioni), precisioneC);
+
+
         		if (n < 0) {
         			console.log('Failed to set the vertex information');
         			return;
@@ -217,7 +245,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 0, -1, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -362,6 +390,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
   var ind2 = 0;
   var x, y, z;
   var supporto = 1;
+  var supporto2 = 1;
   var countIndTexture = 0;
 
   for( var i = 0; i < (centri.length / 2); i++ ){  // Per ognuno dei punti ricevuti
@@ -373,7 +402,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
       }
 
       if( distanza[i] > 0 ){  // Se deve essere un poligono
-          if( distanza[i-1] == 0 ){
+          if( distanza[i-1] == 0 ){ // se prima c'era un punto
               supporto = 1;
               for( var j = 0; j < precisioneC; j++ ){
                   vertices[count] = centri[(i-1) * 2];
@@ -461,8 +490,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
               }
               alphaPrecedente = alphaCorrente;
 
-          }else{
+          }else{ // se prima c'era un poligono
               supporto = 1;
+              var supporto2precedente = supporto2;
               for( var j = 0; j < precisioneC; j++ ){
                   // 1
                   x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo);
@@ -510,6 +540,10 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       indices[ind] = ind2 + 2;    // 1
                       indices[ind+1] = ind2 + 1;  // 6
                       indices[ind+2] = ind2;      // 5
+                      uvs[countIndTexture] = supporto2;       // 5
+                      uvs[countIndTexture + 1] = supporto;
+                      uvs[countIndTexture + 4] = supporto2precedente; // 1
+                      uvs[countIndTexture + 5] = supporto;
                   }else{
                       indices[ind] = ind2;        // 5
                       indices[ind+1] = ind2 + 1;  // 6
@@ -547,6 +581,10 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       indices[ind+3] = ind2 + 3;  // 2
                       indices[ind+4] = ind2 + 1;  // 6
                       indices[ind+5] = ind2 + 2;  // 1
+                      uvs[countIndTexture + 2] = supporto2;         // 6
+                      uvs[countIndTexture + 3] = supporto;
+                      uvs[countIndTexture + 6] = supporto2precedente; // 2
+                      uvs[countIndTexture + 7] = supporto;
                   }else{
                       indices[ind+3] = ind2 + 2;  // 1
                       indices[ind+4] = ind2 + 1;  // 6
@@ -569,6 +607,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
               }
               alphaPrecedente = alphaCorrente;
           }
+          supporto2 = supporto2 - ( 1 / precisioneC );
+
       }else{  // Se il precedente era un poligono
           if( i > 0 && distanza[i-1] != 0){
               for( var j = 0; j < precisioneC; j++ ){
@@ -576,8 +616,13 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+7] = centri[i*2 + 1];
                   vertices[count+8] = 0;
 
-                  uvs[countIndTexture + 4] = 0.5;
-                  uvs[countIndTexture + 5] = 0.5;
+                  if( isClosed ){
+                      uvs[countIndTexture + 4] = supporto2;
+                      uvs[countIndTexture + 5] = supporto;
+                  }else{
+                      uvs[countIndTexture + 4] = 0.5;
+                      uvs[countIndTexture + 5] = 0.5;
+                  }
 
                   // 5
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
@@ -592,12 +637,17 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+4] = y;
                   vertices[count+5] = z;
 
-                  if( precisioneC == 4 ){
-                      uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
-                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                  if( isClosed ){
+                      uvs[countIndTexture + 2] = supporto2;
+                      uvs[countIndTexture + 3] = supporto;
                   }else{
-                      uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
-                      uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
+                      if( precisioneC == 4 ){
+                          uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
+                          uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                      }else{
+                          uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
+                      }
                   }
 
                   // 6
@@ -615,12 +665,17 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+1] = y;
                   vertices[count+2] = z;
 
-                  if( precisioneC == 4 ){
-                      uvs[countIndTexture] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
-                      uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                  if( isClosed ){
+                      uvs[countIndTexture] = supporto2;
+                      uvs[countIndTexture + 1] = supporto;
                   }else{
-                      uvs[countIndTexture] = 0.5 + Math.cos(angolo) * 0.5;
-                      uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * 0.5;
+                      if( precisioneC == 4 ){
+                          uvs[countIndTexture] = 0.5 + Math.cos(angolo) * Math.sqrt(0.5);
+                          uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
+                      }else{
+                          uvs[countIndTexture] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * 0.5;
+                      }
                   }
 
                   countIndTexture = countIndTexture + 6;
