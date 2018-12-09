@@ -361,6 +361,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
   var ind = 0;
   var ind2 = 0;
   var x, y, z;
+  var supporto = 1;
   var countIndTexture = 0;
 
   for( var i = 0; i < (centri.length / 2); i++ ){  // Per ognuno dei punti ricevuti
@@ -373,7 +374,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
       if( distanza[i] > 0 ){  // Se deve essere un poligono
           if( distanza[i-1] == 0 ){
-              var supporto = 1;
+              supporto = 1;
               for( var j = 0; j < precisioneC; j++ ){
                   vertices[count] = centri[(i-1) * 2];
                   vertices[count+1] = centri[(i-1) * 2 + 1];
@@ -389,11 +390,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
                   // Calcolo delle coordinate dei punti sui cerchi minori
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[i*2] + distanza[i] * Math.cos(angolo) * Math.cos(alphaCorrente);
-                  }
-                  y = centri[i*2 + 1];
-                  if(isClosed){
                       y = centri[i*2 + 1] + distanza[i] * Math.cos(angolo) * Math.sin(alphaCorrente);
                   }
                   z = distanza[i] * Math.sin(angolo);
@@ -407,7 +406,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                           uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
                           uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
                       }else{  // nel caso del cilindro
-                          uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 2] = 0.5 + -Math.cos(angolo) * 0.5;
                           uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
                       }
                   }else{  // nel caso del cono
@@ -420,11 +419,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   supporto = supporto - ( 1 / precisioneC );
 
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[i*2] + distanza[i] * Math.cos(angolo) * Math.cos(alphaCorrente);
-                  }
-                  y = centri[i*2 + 1];
-                  if(isClosed){
                       y = centri[i*2 + 1] + distanza[i] * Math.cos(angolo) * Math.sin(alphaCorrente);
                   }
                   z = distanza[i] * Math.sin(angolo);
@@ -438,7 +435,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                           uvs[countIndTexture + 4] = 0.5 + -Math.cos(angolo) * Math.sqrt(0.5);
                           uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * Math.sqrt(0.5);
                       }else{  // nel caso del cilindro
-                          uvs[countIndTexture + 4] = 0.5 + Math.cos(angolo) * 0.5;
+                          uvs[countIndTexture + 4] = 0.5 + -Math.cos(angolo) * 0.5;
                           uvs[countIndTexture + 5] = 0.5 + Math.sin(angolo) * 0.5;
                       }
                   }else{  // nel caos del cono
@@ -465,14 +462,13 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
               alphaPrecedente = alphaCorrente;
 
           }else{
+              supporto = 1;
               for( var j = 0; j < precisioneC; j++ ){
                   // 1
                   x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo) * Math.cos(alphaPrecedente);
-                  }
-                  y = centri[(i-1)*2 + 1];
-                  if(isClosed){
                       y = centri[(i-1) * 2 +1] + distanza[i-1] * Math.cos(angolo) * Math.sin(alphaPrecedente);
                   }
                   z = distanza[i-1] * Math.sin(angolo);
@@ -483,11 +479,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
                   // 5
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[i*2] + distanza[i] * Math.cos(angolo) * Math.cos(alphaCorrente);
-                  }
-                  y = centri[i*2 + 1];
-                  if(isClosed){
                       y = centri[i*2 + 1] + distanza[i] * Math.cos(angolo) * Math.sin(alphaCorrente);
                   }
                   z = distanza[i] * Math.sin(angolo);
@@ -500,11 +494,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   angolo = angolo + ( 2 * Math.PI / precisioneC );
 
                   x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[i*2] + distanza[i] * Math.cos(angolo) * Math.cos(alphaCorrente);
-                  }
-                  y = centri[i*2 + 1];
-                  if(isClosed){
                       y = centri[i*2 + 1] + distanza[i] * Math.cos(angolo) * Math.sin(alphaCorrente);
                   }
                   z = distanza[i] * Math.sin(angolo);
@@ -529,16 +521,20 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                           uvs[countIndTexture + 3] = 0;
                           uvs[countIndTexture + 4] = 1;
                           uvs[countIndTexture + 5] = 1;
+                      }else{
+                          uvs[countIndTexture] = supporto;  //5
+                          uvs[countIndTexture + 1] = 0;
+                          uvs[countIndTexture + 4] = supporto;  //1
+                          uvs[countIndTexture + 5] = 1;
                       }
                   }
+                  supporto = supporto - ( 1 / precisioneC );
 
                   // 2
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo) * Math.cos(alphaPrecedente);
-                  }
-                  y = centri[(i-1)*2 + 1];
-                  if(isClosed){
                       y = centri[(i-1)*2 + 1] + distanza[i-1] * Math.cos(angolo) * Math.sin(alphaPrecedente);
                   }
                   z = distanza[i-1] * Math.sin(angolo);
@@ -557,6 +553,11 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       indices[ind+5] = ind2 + 3;  // 2
                       if( precisioneC == 4 ){
                           uvs[countIndTexture + 6] = 0;
+                          uvs[countIndTexture + 7] = 1;
+                      }else{
+                          uvs[countIndTexture + 2] = supporto;  //6
+                          uvs[countIndTexture + 3] = 0;
+                          uvs[countIndTexture + 6] = supporto;  //2
                           uvs[countIndTexture + 7] = 1;
                       }
                   }
@@ -580,11 +581,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
                   // 5
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo) * Math.cos(alphaPrecedente);
-                  }
-                  y = centri[(i-1)*2 + 1];
-                  if(isClosed){
                       y = centri[(i-1)*2 + 1] + distanza[i-1] * Math.cos(angolo) * Math.sin(alphaPrecedente);
                   }
                   z = distanza[i-1] * Math.sin(angolo);
@@ -605,11 +604,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   angolo = angolo + ( 2 * Math.PI / precisioneC );
 
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
                   if(isClosed){ // Se è chiuso i cerchi non saranno tutti angolati 0, ma verso il centro
                       x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo) * Math.cos(alphaPrecedente);
-                  }
-                  y = centri[(i-1)*2 + 1];
-                  if(isClosed){
                       y = centri[(i-1)*2 + 1] + distanza[i-1] * Math.cos(angolo) * Math.sin(alphaPrecedente);
                   }
                   z = distanza[i-1] * Math.sin(angolo);
