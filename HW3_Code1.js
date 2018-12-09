@@ -606,8 +606,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   count = count + 12;
               }
               alphaPrecedente = alphaCorrente;
+              supporto2 = supporto2 - ( 1 / precisioneC );
           }
-          supporto2 = supporto2 - ( 1 / precisioneC );
 
       }else{  // Se il precedente era un poligono
           if( i > 0 && distanza[i-1] != 0){
