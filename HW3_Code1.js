@@ -170,7 +170,26 @@ function main() {
         		geometria.cylinder = false;
         		geometria.sphere = value;
         		geometria.torus = false;
-        		n = initVertexBuffersSphere(gl);
+
+        		//n = initVertexBuffersSphere(gl);
+
+            precisioneC = 128;
+            centri = new Float32Array(precisioneC*2);
+            dimensioni = new Float32Array(precisioneC);
+
+            raggio = 1;
+            var angolo = Math.PI / 2;
+            for(var i = 0; i < precisioneC; i++){
+               centri[i*2] = 0;                                // x
+               centri[i*2+1] = raggio * Math.sin(angolo);      // y
+               dimensioni[i] = raggio * Math.cos(angolo);
+               angolo = angolo - ( Math.PI / (precisioneC - 1) );
+            }
+            dimensioni[0] = 0;
+            dimensioni[precisioneC-1] = 0;
+
+            n = initVertexBuffersSphere(gl, centri, dimensioni, precisioneC);
+
         		if (n < 0) {
         			console.log('Failed to set the vertex information');
         			return;
@@ -245,7 +264,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -697,9 +716,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
           }
       }
   }
-  console.log("vertices: ", vertices);
-  console.log("uvs: ", uvs);
-  console.log("indices: ", indices);
+  // console.log("vertices: ", vertices);
+  // console.log("uvs: ", uvs);
+  // console.log("indices: ", indices);
 
 
   // Write the vertex property to buffers (coordinates and normals)
@@ -727,20 +746,247 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
 
 
-function initVertexBuffersSphere(gl) { // Create a sphere
-    return indices.length;
-}
+function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create a sphere
+  // calcolo numero di vertici della figura
+  var nv = 0; // numero vertici
+  var ni = 0; // numero indici
 
-function initVertexBuffersCylinder(gl) { // Create a cylinder
-    return indices.length;
-}
+  for( var i = 0; i < (centri.length / 2); i++ ){
+      if( distanza[i] > 0 ){
+          if( distanza[i-1] == 0 ){ // se prima c'era un punto
+                ni = ni + precisioneC * 3;  // ni = ni + nTriangoli * nVertitiTriangolo
+                nv = nv + precisioneC * 3;
+          }else{ // se prima c'era un poligolo
+                ni = ni + precisioneC * 6;  // ni = ni + nTriangoli * 2 * nVertitiTriangolo
+                nv = nv + precisioneC * 4;
+          }
+      }else{
+          if( i > 0 && distanza[i-1] != 0 ){ // se prima c'era un poligono
+                ni = ni + precisioneC * 3;  // ni = ni + nTriangoli * nVertitiTriangolo
+                nv = nv + precisioneC * 3;
+          }
+      }
+  }
+  nv = nv * 3;
 
-function initVertexBuffersCone(gl) { // Create a cone
-    return indices.length;
-}
+  // creazione del vettore dei vertici
+  var vertices = new Float32Array(nv);
 
-function initVertexBuffersTorus(gl) { // Create a torus
-    return indices.length;
+  // Indices of the vertices
+  var indices = new Uint16Array(ni);
+
+  // TexCoord
+  var uvs = new Float32Array( (vertices.length / 3) * 2 );
+
+  var angolo = 0;
+  var count = 0;
+  var ind = 0;
+  var ind2 = 0;
+  var x, y, z;
+  var supportox = 1;
+  var supportoy = 1;
+  var supportoYprecedente;
+  var countIndTexture = 0;
+
+  for( var i = 0; i < (centri.length / 2); i++ ){  // Per ognuno dei punti ricevuti
+      supportox = 1;
+      supportoYprecedente = supportoy;
+      supportoy = supportoy - ( 1 / precisioneC );
+
+      if( distanza[i] > 0 ){  // Se deve essere un poligono
+          if( distanza[i-1] == 0 ){ // se prima c'era un punto
+              for( var j = 0; j < precisioneC; j++ ){
+                  vertices[count] = centri[(i-1) * 2];
+                  vertices[count+1] = centri[(i-1) * 2 + 1];
+                  vertices[count+2] = 0;
+
+
+                  uvs[countIndTexture] = supportox - ( 1 / precisioneC ) / 2;
+                  uvs[countIndTexture + 1] = supportoYprecedente;
+
+                  // Calcolo delle coordinate dei punti sui cerchi minori
+                  x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
+                  z = distanza[i] * Math.sin(angolo);
+
+                  vertices[count+3] = x;
+                  vertices[count+4] = y;
+                  vertices[count+5] = z;
+
+                  uvs[countIndTexture + 2] = supportox;
+                  uvs[countIndTexture + 3] = supportoy;
+
+                  angolo = angolo + ( 2 * Math.PI / precisioneC );
+                  supportox = supportox - ( 1 / precisioneC );
+
+
+
+                  x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
+                  z = distanza[i] * Math.sin(angolo);
+
+                  vertices[count+6] = x;
+                  vertices[count+7] = y;
+                  vertices[count+8] = z;
+
+                  uvs[countIndTexture + 4] = supportox;
+                  uvs[countIndTexture + 5] = supportoy;
+
+                  countIndTexture = countIndTexture + 6;
+
+                  indices[ind] = ind2;        // 0
+                  indices[ind+1] = ind2 + 1;  // 2
+                  indices[ind+2] = ind2 + 2;  // 1
+
+                  ind = ind + 3;
+                  ind2 = ind2 + 3;
+                  count = count + 9;
+              }
+
+          }else{ // se prima c'era un poligono
+              for( var j = 0; j < precisioneC; j++ ){
+                  // 1
+                  x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
+                  z = distanza[i-1] * Math.sin(angolo);
+
+                  vertices[count+6] = x;
+                  vertices[count+7] = y;
+                  vertices[count+8] = z;
+
+                  // 5
+                  x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
+                  z = distanza[i] * Math.sin(angolo);
+
+                  vertices[count] = x;
+                  vertices[count+1] = y;
+                  vertices[count+2] = z;
+
+                  // 6
+                  angolo = angolo + ( 2 * Math.PI / precisioneC );
+
+                  x = centri[i*2] + distanza[i] * Math.cos(angolo);
+                  y = centri[i*2 + 1];
+                  z = distanza[i] * Math.sin(angolo);
+
+                  vertices[count+3] = x;
+                  vertices[count+4] = y;
+                  vertices[count+5] = z;
+
+                  indices[ind] = ind2;        // 5
+                  indices[ind+1] = ind2 + 1;  // 6
+                  indices[ind+2] = ind2 + 2;  // 1
+
+                  uvs[countIndTexture] = supportox;  //5
+                  uvs[countIndTexture + 1] = supportoy;
+                  uvs[countIndTexture + 4] = supportox;  //1
+                  uvs[countIndTexture + 5] = supportoYprecedente;
+
+                  supportox = supportox - ( 1 / precisioneC );
+
+
+                  // 2
+                  x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
+                  z = distanza[i-1] * Math.sin(angolo);
+
+                  vertices[count+9] = x;
+                  vertices[count+10] = y;
+                  vertices[count+11] = z;
+
+                  indices[ind+3] = ind2 + 2;  // 1
+                  indices[ind+4] = ind2 + 1;  // 6
+                  indices[ind+5] = ind2 + 3;  // 2
+
+                  uvs[countIndTexture + 2] = supportox;  //6
+                  uvs[countIndTexture + 3] = supportoy;
+                  uvs[countIndTexture + 6] = supportox;  //2
+                  uvs[countIndTexture + 7] = supportoYprecedente;
+
+                  countIndTexture = countIndTexture + 8;
+
+                  ind = ind + 6;
+                  ind2 = ind2 + 4;
+                  count = count + 12;
+              }
+          }
+
+      }else{  // Se il precedente era un poligono
+          if( i > 0 && distanza[i-1] != 0){
+              for( var j = 0; j < precisioneC; j++ ){
+                  vertices[count+6] = centri[i*2];  // 9
+                  vertices[count+7] = centri[i*2 + 1];
+                  vertices[count+8] = 0;
+
+                  uvs[countIndTexture + 4] = supportox - ( 1 / precisioneC ) / 2;
+                  uvs[countIndTexture + 5] = supportoy;
+
+                  // 5
+                  x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
+                  z = distanza[i-1] * Math.sin(angolo);
+
+                  vertices[count+3] = x;
+                  vertices[count+4] = y;
+                  vertices[count+5] = z;
+
+                  uvs[countIndTexture + 2] = supportox;
+                  uvs[countIndTexture + 3] = supportoYprecedente;
+
+                  supportox = supportox - ( 1 / precisioneC );
+
+                  // 6
+                  angolo = angolo + ( 2 * Math.PI / precisioneC );
+
+                  x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
+                  y = centri[(i-1)*2 + 1];
+                  z = distanza[i-1] * Math.sin(angolo);
+
+                  vertices[count] = x;
+                  vertices[count+1] = y;
+                  vertices[count+2] = z;
+
+                  uvs[countIndTexture] = supportox;
+                  uvs[countIndTexture + 1] = supportoYprecedente;
+
+                  countIndTexture = countIndTexture + 6;
+
+                  indices[ind] = ind2;        // 6
+                  indices[ind+1] = ind2 + 1;  // 5
+                  indices[ind+2] = ind2 + 2;  // 9
+
+                  ind = ind + 3;
+                  ind2 = ind2 + 3;
+                  count = count + 9;
+              }
+          }
+      }
+  }
+  console.log("vertices: ", vertices);
+  console.log("uvs: ", uvs);
+  console.log("indices: ", indices);
+
+
+  // Write the vertex property to buffers (coordinates and normals)
+  // Same data can be used for vertex and normal
+  // In order to make it intelligible, another buffer is prepared separately
+  if (!initArrayBuffer(gl, 'a_Position', new Float32Array(vertices), gl.FLOAT, 3)) return -1;
+  if (!initArrayBuffer(gl, 'a_TexCoord', new Float32Array(uvs)      , gl.FLOAT, 2)) return -1;
+
+  // Unbind the buffer object
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+  // Write the indices to the buffer object
+  var indexBuffer = gl.createBuffer();
+  if (!indexBuffer) {
+      console.log('Failed to create the buffer object');
+      return -1;
+  }
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+
+  return indices.length;
 }
 
 
