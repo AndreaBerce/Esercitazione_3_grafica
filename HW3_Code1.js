@@ -201,8 +201,8 @@ function main() {
             var raggino = 0.7;
 
             for(var i = 0; i <= 2*Math.PI; i+= 2*Math.PI/precisioneC){
-               centri.push(-raggione * Math.cos(i));                                // x
-               centri.push(-raggione * Math.sin(i));                                // y
+               centri.push(raggione * Math.cos(i));                                // x
+               centri.push(raggione * Math.sin(i));                                // y
                dimensioni.push(raggino);                                           // Raggio dei cerchi
             }
 
@@ -230,7 +230,7 @@ function main() {
     });
     //*********************************************************************************************
 
-    var currentAngle = 90.0;           // Current rotation angle
+    var currentAngle = 180.0;           // Current rotation angle
     var vpMatrix = new Matrix4();   // View projection matrix
 
     // Calculate the view projection matrix
@@ -245,7 +245,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 0, 1, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -390,7 +390,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
   var ind2 = 0;
   var x, y, z;
   var supporto = 1;
-  var supporto2 = 1;
+  var supporto2 = 0;
   var countIndTexture = 0;
 
   for( var i = 0; i < (centri.length / 2); i++ ){  // Per ognuno dei punti ricevuti
@@ -491,8 +491,13 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
               alphaPrecedente = alphaCorrente;
 
           }else{ // se prima c'era un poligono
-              supporto = 1;
+              if( isClosed ){
+                  supporto = 0;
+              }else{
+                  supporto = 1;
+              }
               var supporto2precedente = supporto2;
+              supporto2 = supporto2 + ( 1 / precisioneC );
               for( var j = 0; j < precisioneC; j++ ){
                   // 1
                   x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo);
@@ -544,6 +549,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                       uvs[countIndTexture + 1] = supporto;
                       uvs[countIndTexture + 4] = supporto2precedente; // 1
                       uvs[countIndTexture + 5] = supporto;
+                      supporto = supporto + ( 1 / precisioneC );
                   }else{
                       indices[ind] = ind2;        // 5
                       indices[ind+1] = ind2 + 1;  // 6
@@ -561,8 +567,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                           uvs[countIndTexture + 4] = supporto;  //1
                           uvs[countIndTexture + 5] = 1;
                       }
+                      supporto = supporto - ( 1 / precisioneC );
                   }
-                  supporto = supporto - ( 1 / precisioneC );
 
                   // 2
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
@@ -606,7 +612,6 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   count = count + 12;
               }
               alphaPrecedente = alphaCorrente;
-              supporto2 = supporto2 - ( 1 / precisioneC );
           }
 
       }else{  // Se il precedente era un poligono
