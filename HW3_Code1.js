@@ -264,7 +264,7 @@ function main() {
       	currentAngle = animate(currentAngle);  // Update the rotation angle
 
       	// Calculate the model matrix
-      	modelMatrix.setRotate(currentAngle, 1, 0, 0); // Rotate around the y-axis
+      	modelMatrix.setRotate(currentAngle, 0, -1, 0); // Rotate around the y-axis
 
       	mvpMatrix.set(vpMatrix).multiply(modelMatrix);
       	// Pass the model view projection matrix to u_MvpMatrix
@@ -963,9 +963,9 @@ function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create 
           }
       }
   }
-  console.log("vertices: ", vertices);
-  console.log("uvs: ", uvs);
-  console.log("indices: ", indices);
+  // console.log("vertices: ", vertices);
+  // console.log("uvs: ", uvs);
+  // console.log("indices: ", indices);
 
 
   // Write the vertex property to buffers (coordinates and normals)
@@ -1055,6 +1055,10 @@ function initTextures(gl) {
     image.onload = function(){ loadTexture(gl, texture, u_Sampler, image); };
     // Tell the browser to load an image
     image.src = './textures/ash_uvgrid01.jpg';
+    //image.src = './textures/03a.jpg';
+    //image.src = './textures/floor-wood.jpg';
+    //image.src = './textures/stone.jpg';
+    //image.src = './textures/wall.jpg';
 
     return true;
 }
