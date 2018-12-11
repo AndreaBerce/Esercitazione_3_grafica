@@ -53,7 +53,7 @@ function main() {
     }
 
     // Set texture
-    if (!initTextures(gl)) {
+    if (!initTextures(gl,1)) {
         console.log('Failed to intialize the texture.');
         return;
     }
@@ -232,6 +232,130 @@ function main() {
         		}
   	   }
   	   // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    //
+    //----------------------------------------------------/
+    var textures = {t1:true, t2:false, t3:false, t4:false, t5:false, t6:false};
+    //
+    gui.add(textures, 't1').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = value;
+          textures.t2 = false;
+          textures.t3 = false;
+          textures.t4 = false;
+          textures.t5 = false;
+          textures.t6 = false;
+
+          // Set texture
+          if (!initTextures(gl, 1)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    gui.add(textures, 't2').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = false;
+          textures.t2 = value;
+          textures.t3 = false;
+          textures.t4 = false;
+          textures.t5 = false;
+          textures.t6 = false;
+
+          // Set texture
+          if (!initTextures(gl, 2)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    gui.add(textures, 't3').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = false;
+          textures.t2 = false;
+          textures.t3 = value;
+          textures.t4 = false;
+          textures.t5 = false;
+          textures.t6 = false;
+
+          // Set texture
+          if (!initTextures(gl, 3)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    gui.add(textures, 't4').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = false;
+          textures.t2 = false;
+          textures.t3 = false;
+          textures.t4 = value;
+          textures.t5 = false;
+          textures.t6 = false;
+
+          // Set texture
+          if (!initTextures(gl, 4)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    gui.add(textures, 't5').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = false;
+          textures.t2 = false;
+          textures.t3 = false;
+          textures.t4 = false;
+          textures.t5 = value;
+          textures.t6 = false;
+
+          // Set texture
+          if (!initTextures(gl, 5)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
+       for (var i in gui.__controllers) {
+            gui.__controllers[i].updateDisplay();
+       }
+    });
+    gui.add(textures, 't6').onFinishChange(function(value) {
+       if( value == true ){
+          textures.t1 = false;
+          textures.t2 = false;
+          textures.t3 = false;
+          textures.t4 = false;
+          textures.t5 = false;
+          textures.t6 = value;
+
+          // Set texture
+          if (!initTextures(gl, 6)) {
+              console.log('Failed to intialize the texture.');
+              return;
+          }
+       }
+       // Iterate over all controllers
        for (var i in gui.__controllers) {
             gui.__controllers[i].updateDisplay();
        }
@@ -947,7 +1071,7 @@ function animate(angle) {
 }
 
 
-function initTextures(gl) {
+function initTextures(gl,valore) {
     var texture = gl.createTexture();   // Create a texture object
     if (!texture) {
         console.log('Failed to create the texture object');
@@ -968,11 +1092,21 @@ function initTextures(gl) {
     // Register the event handler to be called on loading an image
     image.onload = function(){ loadTexture(gl, texture, u_Sampler, image); };
     // Tell the browser to load an image
-    image.src = './textures/ash_uvgrid01.jpg';
-    //image.src = './textures/03a.jpg';
-    //image.src = './textures/floor-wood.jpg';
-    //image.src = './textures/stone.jpg';
-    //image.src = './textures/wall.jpg';
+    switch (valore) {
+      case 1:   image.src = './textures/ash_uvgrid01.jpg';
+                break;
+      case 2:   image.src = './textures/03a.jpg';
+                break;
+      case 3:   image.src = './textures/floor-wood.jpg';
+                break;
+      case 4:   image.src = './textures/stone.jpg';
+                break;
+      case 5:   image.src = './textures/wall.jpg';
+                break;
+      case 6:   image.src = './textures/blueflower.jpg';
+                break;
+      default:  image.src = './textures/ash_uvgrid01.jpg';
+    }
 
     return true;
 }
