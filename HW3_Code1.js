@@ -47,8 +47,6 @@ function main() {
     var precisioneC = 4;
     var n = circleDrag(gl, centri, dimensioni, precisioneC);
 
-    //var n = initVertexBuffersCube(gl);
-
     if (n < 0) {
         console.log('Failed to set the vertex information');
         return;
@@ -93,8 +91,6 @@ function main() {
         		console.log(geometria.cube + " " +geometria.cone);
         		// Set the vertex coordinates, the color and the normal
 
-        		//n = initVertexBuffersCube(gl);
-
             raggio = 1.0000001*Math.sqrt(2);
             centri = new Float32Array([0,1, 0,1, 0,-1, 0,-1]);
             dimensioni = new Float32Array([0, raggio, raggio, 0]);
@@ -120,7 +116,6 @@ function main() {
         		geometria.sphere = false;
         		geometria.torus = false;
 
-            //n = initVertexBuffersCone(gl);
             centri = new Float32Array([0,1.2, 0,-0.9, 0,-0.9]);
             dimensioni = new Float32Array([0, 0.7, 0]);
             precisioneC = 200;//128;
@@ -150,8 +145,6 @@ function main() {
             precisioneC = 128;
             n = circleDrag(gl, centri, dimensioni, precisioneC);
 
-            //n = initVertexBuffersCylinder(gl);
-
         		if (n < 0) {
         			console.log('Failed to set the vertex information');
         			return;
@@ -170,8 +163,6 @@ function main() {
         		geometria.cylinder = false;
         		geometria.sphere = value;
         		geometria.torus = false;
-
-        		//n = initVertexBuffersSphere(gl);
 
             precisioneC = 128;
             centri = new Float32Array(precisioneC*2);
@@ -208,8 +199,6 @@ function main() {
         		geometria.cylinder = false;
         		geometria.sphere = false;
         		geometria.torus = value;
-
-            //n = initVertexBuffersTorus(gl);
 
             centri = [];
             dimensioni = [];
@@ -281,81 +270,6 @@ function main() {
     tick();
 }
 
-
-function initVertexBuffersCube(gl) {
-  // Create a cube
-  //    v6----- v5
-  //   /|      /|
-  //  v1------v0|
-  //  | |     | |
-  //  | |v7---|-|v4
-  //  |/      |/
-  //  v2------v3
-  // Coordinates
-  var positions = new Float32Array([
-     1.0, 1.0, 1.0,  -1.0, 1.0, 1.0,  -1.0,-1.0, 1.0,   1.0,-1.0, 1.0, // v0-v1-v2-v3 front
-     1.0, 1.0, 1.0,   1.0,-1.0, 1.0,   1.0,-1.0,-1.0,   1.0, 1.0,-1.0, // v0-v3-v4-v5 right
-     1.0, 1.0, 1.0,   1.0, 1.0,-1.0,  -1.0, 1.0,-1.0,  -1.0, 1.0, 1.0, // v0-v5-v6-v1 up
-    -1.0, 1.0, 1.0,  -1.0, 1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0,-1.0, 1.0, // v1-v6-v7-v2 left
-    -1.0,-1.0,-1.0,   1.0,-1.0,-1.0,   1.0,-1.0, 1.0,  -1.0,-1.0, 1.0, // v7-v4-v3-v2 down
-     1.0,-1.0,-1.0,  -1.0,-1.0,-1.0,  -1.0, 1.0,-1.0,   1.0, 1.0,-1.0  // v4-v7-v6-v5 back
-  ]);
-  console.log("positions", positions);
-
-  // TexCoord
-  var uvs = new Float32Array( (positions.length / 3) * 2 );
-  for( var i = 0; i < uvs.length / 8; i++ ){
-    uvs[i*8] = 1.0;
-    uvs[i*8+1] = 1.0;
-    uvs[i*8+2] = 0.0;
-    uvs[i*8+3] = 1.0;
-    uvs[i*8+4] = 0.0;
-    uvs[i*8+5] = 0.0;
-    uvs[i*8+6] = 1.0;
-    uvs[i*8+7] = 0.0;
-  }
-  console.log("uvs", uvs);
-/*
-  // TexCoord
-  var uvs = new Float32Array([
-    1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,  // v0-v1-v2-v3 front
-    0.0, 1.0,   0.0, 0.0,   1.0, 0.0,   1.0, 1.0,  // v0-v3-v4-v5 right
-    1.0, 0.0,   1.0, 1.0,   0.0, 1.0,   0.0, 0.0,  // v0-v5-v6-v1 up
-    1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,  // v1-v6-v7-v2 left
-    0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,  // v7-v4-v3-v2 down
-    0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0   // v4-v7-v6-v5 back
-  ]);*/
-
-  // Indices of the vertices
-  var indices = new Uint16Array([
-     0, 1, 2,   0, 2, 3,    // front
-     4, 5, 6,   4, 6, 7,    // right
-     8, 9,10,   8,10,11,    // up
-    12,13,14,  12,14,15,    // left
-    16,17,18,  16,18,19,    // down
-    20,21,22,  20,22,23     // back
- ]);
-
-  // Write the vertex property to buffers (coordinates and normals)
-  // Same data can be used for vertex and normal
-  // In order to make it intelligible, another buffer is prepared separately
-  if (!initArrayBuffer(gl, 'a_Position', new Float32Array(positions), gl.FLOAT, 3)) return -1;
-  if (!initArrayBuffer(gl, 'a_TexCoord', new Float32Array(uvs)      , gl.FLOAT, 2)) return -1;
-
-  // Unbind the buffer object
-  gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-  // Write the indices to the buffer object
-  var indexBuffer = gl.createBuffer();
-  if (!indexBuffer) {
-    console.log('Failed to create the buffer object');
-    return -1;
-  }
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-
-  return indices.length;
-}
 
 
 
