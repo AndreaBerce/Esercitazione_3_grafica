@@ -1071,7 +1071,7 @@ function animate(angle) {
 }
 
 
-function initTextures(gl,valore) {
+function initTextures(gl, valore) {
     var texture = gl.createTexture();   // Create a texture object
     if (!texture) {
         console.log('Failed to create the texture object');
