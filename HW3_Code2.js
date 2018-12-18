@@ -344,8 +344,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
 
       if( distanza[i] > 0 ){  // Se deve essere un poligono
           if( distanza[i-1] == 0 ){ // se prima c'era un punto
-              supporto = 1;
-              angolo = 0;
+              supporto = 0;
+              angolo = Math.PI;
               for( var j = 0; j < precisioneC; j++ ){
                   vertices[count] = centri[(i-1) * 2];
                   vertices[count+1] = centri[(i-1) * 2 + 1];
@@ -394,7 +394,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
               }
 
           }else{ // se prima c'era un poligono
-              supporto = 1;
+              supporto = 0;
               for( var j = 0; j < precisioneC; j++ ){
                   // 1
                   x = centri[(i-1) * 2] + distanza[i-1] * Math.cos(angolo);
@@ -433,7 +433,7 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   uvs[countIndTexture + 1] = 0;
                   uvs[countIndTexture + 4] = supporto;  //1
                   uvs[countIndTexture + 5] = 1;
-                  supporto = supporto - ( 1 / precisioneC );
+                  supporto = supporto + ( 1 / precisioneC );
 
                   // 2
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
@@ -463,7 +463,9 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
           }
 
       }else{  // Se il precedente era un poligono
-          supporto = 0;
+          supporto = 1;
+          angolo = Math.PI;
+          var angolo2 = 0;
           if( i > 0 && distanza[i-1] != 0){
               for( var j = 0; j < precisioneC; j++ ){
                   vertices[count+6] = centri[i*2];  // 9
@@ -482,11 +484,12 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+4] = y;
                   vertices[count+5] = z;
 
-                  uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo) * 0.5;
-                  uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo) * 0.5;
+                  uvs[countIndTexture + 2] = 0.5 + Math.cos(angolo2) * 0.5;
+                  uvs[countIndTexture + 3] = 0.5 + Math.sin(angolo2) * 0.5;
 
                   // 6
                   angolo = angolo - ( Math.PI / precisioneC );
+                  angolo2 = angolo2 - ( Math.PI / precisioneC );
 
                   x = centri[(i-1)*2] + distanza[i-1] * Math.cos(angolo);
                   y = centri[(i-1)*2 + 1];
@@ -496,8 +499,8 @@ function circleDrag(gl, centri, distanza, precisioneC){  //coordinate centri, di
                   vertices[count+1] = y;
                   vertices[count+2] = z;
 
-                  uvs[countIndTexture] = 0.5 + Math.cos(angolo) * 0.5;
-                  uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo) * 0.5;
+                  uvs[countIndTexture] = 0.5 + Math.cos(angolo2) * 0.5;
+                  uvs[countIndTexture + 1] = 0.5 + Math.sin(angolo2) * 0.5;
 
                   countIndTexture = countIndTexture + 6;
 
@@ -585,7 +588,7 @@ function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create 
   var countIndTexture = 0;
 
   for( var i = 0; i < (centri.length / 2); i++ ){  // Per ognuno dei punti ricevuti
-      supportox = 1;
+      supportox = 0;
       supportoYprecedente = supportoy;
       supportoy = supportoy - ( 1 / precisioneC );
       angolo = 0
@@ -614,7 +617,7 @@ function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create 
                   uvs[countIndTexture + 3] = supportoy;
 
                   angolo = angolo + ( Math.PI / precisioneC );
-                  supportox = supportox - ( 1 / precisioneC );
+                  supportox = supportox + ( 1 / precisioneC );
 
 
 
@@ -680,7 +683,7 @@ function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create 
                   uvs[countIndTexture + 4] = supportox;  //1
                   uvs[countIndTexture + 5] = supportoYprecedente;
 
-                  supportox = supportox - ( 1 / precisioneC );
+                  supportox = supportox + ( 1 / precisioneC );
 
 
                   // 2
@@ -731,7 +734,7 @@ function initVertexBuffersSphere(gl, centri, distanza, precisioneC) { // Create 
                   uvs[countIndTexture + 2] = supportox;
                   uvs[countIndTexture + 3] = supportoYprecedente;
 
-                  supportox = supportox - ( 1 / precisioneC );
+                  supportox = supportox + ( 1 / precisioneC );
 
                   // 6
                   angolo = angolo + ( Math.PI / precisioneC );
